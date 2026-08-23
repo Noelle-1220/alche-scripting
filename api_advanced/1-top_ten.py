@@ -2,29 +2,33 @@
 """
 1-top_ten
 """
-
 import requests
 
 
 def top_ten(subreddit):
-    """Print the titles of the first 10 hot posts."""
+    """
+    Queries the Reddit API and prints the titles of the first 10 hot
+    posts for a given subreddit. If invalid, prints None.
+    """
     url = "https://www.reddit.com/r/{}/hot.json".format(subreddit)
+    headers = {"User-Agent": "custom-user-agent/0.1"}
+    params = {"limit": 10}
 
-    headers = {
-        "User-Agent": "python:alche-scripting:v1.0 (by /u/ALU)"
-    }
+    try:
+        response = requests.get(
+            url, headers=headers, params=params, allow_redirects=False
+        )
+        if response.status_code != 200:
+            print(None)
+            return
 
-    response = requests.get(
-        url,
-        headers=headers,
-        allow_redirects=False
-    )
+        posts = response.json().get("data", {}).get("children", [])
+        if not posts:
+            print(None)
+            return
 
-    if response.status_code != 200:
-        print("None")
-        return
+        for post in posts:
+            print(post.get("data", {}).get("title"))
 
-    posts = response.json().get("data", {}).get("children", [])
-
-    for post in posts[:10]:
-        print(post.get("data", {}).get("title"))
+    except Exception:
+        print(None)
